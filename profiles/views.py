@@ -6,7 +6,7 @@ from profiles.Serializers import *
 from django.view.generic.
 # Create your views here.
 
-# path('bsjh/<int:year>/',)
+# path('bsjh/<int:year>/',
 
 
 # class PatientView(APIView):
