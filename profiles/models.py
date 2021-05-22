@@ -11,11 +11,16 @@ class Person(models.Model):
         (u'O', u'LGBT'),
         (u'N', u'Dont want to reveal'),
     )
-
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
+    id = models.AutoField(primary_key=True)
+    first_name = models.CharField(max_length=50, null=True)
+    last_name = models.CharField(max_length=50, null=True)
     dob = models.DateField()
-    gender = models.CharField(max_length=2, choices=GENDER_CHOICES)
+    gender = models.CharField(max_length=2, choices=GENDER_CHOICES, null=True)
+    media = models.CharField(max_length=150, null=True)
+    token = models.CharField(max_length=250, null=True)
+
+    def __str__(self):
+        return self.first_name+" "+self.last_name
 
 
 class Patient(Person):
@@ -42,136 +47,191 @@ class Patient(Person):
     occupation = models.CharField(max_length=50, null=True)
     blood_group = models.CharField(max_length=3, choices=BG_CHOICES, null=True)
     education = models.CharField(max_length=3, choices=EDU_CHOICES, null=True)
-    records = models.CharField(max_length=150)
     sleep_start = models.TimeField(
         auto_now=False, auto_now_add=False, null=True)
     sleep_end = models.TimeField(auto_now=False, auto_now_add=False, null=True)
 
+    def __str__(self):
+        return super().__str__()+' Patient'
+
 
 class Address(models.Model):
-    addr_locality = models.CharField(max_length=100)
-    addr_district = models.CharField(max_length=50)
-    addr_state = models.CharField(max_length=50)
-    addr_country = models.CharField(max_length=50)
-    addr_pincode = models.CharField(max_length=50)
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    id = models.AutoField(primary_key=True)
+    addr_locality = models.CharField(max_length=100, null=True)
+    addr_district = models.CharField(max_length=50, null=True)
+    addr_state = models.CharField(max_length=50, null=True)
+    addr_country = models.CharField(max_length=50, null=True)
+    addr_pincode = models.CharField(max_length=50, null=True)
+    person = models.ForeignKey(
+        Person, related_name='address', on_delete=models.CASCADE)
 
 
 class Phone(models.Model):
-    country_code = models.CharField(max_length=3)
-    phone_no = models.CharField(max_length=120)
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    id = models.AutoField(primary_key=True)
+    country_code = models.CharField(max_length=3, null=True)
+    phone_no = models.CharField(max_length=120, null=True)
+    person = models.ForeignKey(
+        Person, related_name='phone', on_delete=models.CASCADE)
 
 
 class EmergencyContact(models.Model):
-    country_code = models.CharField(max_length=3)
-    phone_no = models.CharField(max_length=120)
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    id = models.AutoField(primary_key=True)
+    country_code = models.CharField(max_length=3, null=True)
+    phone_no = models.CharField(max_length=120, null=True)
+    person = models.ForeignKey(
+        Person, related_name='emergency_contact', on_delete=models.CASCADE)
 
 
 class Email(models.Model):
-    email_address = models.CharField(max_length=120)
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    id = models.AutoField(primary_key=True)
+    email_address = models.CharField(max_length=120, null=True)
+    person = models.ForeignKey(
+        Person, related_name='email', on_delete=models.CASCADE)
 
 
 class Allergies(models.Model):
-    allergies = models.CharField(max_length=120)
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    id = models.AutoField(primary_key=True)
+    allergies = models.CharField(max_length=120, null=True)
+    patient = models.ForeignKey(
+        Patient, related_name='allergies', on_delete=models.CASCADE)
 
 
 class PastDiseases(models.Model):
-    past_diseases = models.CharField(max_length=120)
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    id = models.AutoField(primary_key=True)
+    past_diseases = models.CharField(max_length=120, null=True)
+    patient = models.ForeignKey(
+        Patient, related_name='past_diseases', on_delete=models.CASCADE)
 
 
-class PastDiseases(models.Model):
-    pastDiseases = models.CharField(max_length=120)
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+# class PastDiseases(models.Model):
+#     pastDiseases = models.CharField(max_length=120)
+#     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
 
 
 class Other(models.Model):
-    key = models.CharField(max_length=120)
-    value = models.CharField(max_length=120)
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    id = models.AutoField(primary_key=True)
+    key = models.CharField(max_length=120, null=True)
+    value = models.CharField(max_length=120, null=True)
+    person = models.ForeignKey(
+        Person, related_name='other', on_delete=models.CASCADE)
 
 
 class Addictions(models.Model):
-    addiction = models.CharField(max_length=120)
-    start_date = models.DateField(auto_now=False, auto_now_add=False)
-    end_date = models.DateField(auto_now=False, auto_now_add=False)
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    id = models.AutoField(primary_key=True)
+    addiction = models.CharField(max_length=120, null=True)
+    start_date = models.DateField(
+        auto_now=False, auto_now_add=False, null=True)
+    end_date = models.DateField(auto_now=False, auto_now_add=False, null=True)
+    patient = models.ForeignKey(
+        Patient, related_name='adictions', on_delete=models.CASCADE)
 
 
 class Medicines(models.Model):
-    name = models.CharField(max_length=120)
-    other_info = models.CharField(max_length=120)  # like power of medicine
-    start_date = models.DateField(auto_now=False, auto_now_add=False)
-    end_date = models.DateField(auto_now=False, auto_now_add=False)
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=120, null=True)
+    other_info = models.CharField(
+        max_length=120, null=True)  # like power of medicine
+    start_date = models.DateField(
+        auto_now=False, auto_now_add=False, null=True)
+    end_date = models.DateField(auto_now=False, auto_now_add=False, null=True)
+    patient = models.ForeignKey(
+        Patient, related_name='medicines', on_delete=models.CASCADE)
 
 
 class Weight(models.Model):
-    weight = models.IntegerField()
-    date = models.DateField(auto_now_add=False)
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    id = models.AutoField(primary_key=True)
+    weight = models.IntegerField(null=True)
+    date = models.DateField(auto_now_add=False, null=True)
+    patient = models.ForeignKey(
+        Patient, related_name='weight', on_delete=models.CASCADE)
 
 
 class Height(models.Model):
-    height = models.IntegerField()
-    date = models.DateField(auto_now_add=False)
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    id = models.AutoField(primary_key=True)
+    height = models.IntegerField(null=True)
+    date = models.DateField(auto_now_add=False, null=True)
+    patient = models.ForeignKey(
+        Patient, related_name='height', on_delete=models.CASCADE)
 
 
 class Cholesterol(models.Model):
-    HDL = models.FloatField()
-    LDL = models.FloatField()
-    date = models.DateField(auto_now_add=False)
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    id = models.AutoField(primary_key=True)
+    HDL = models.FloatField(null=True)
+    LDL = models.FloatField(null=True)
+    date = models.DateField(auto_now_add=False, null=True)
+    patient = models.ForeignKey(
+        Patient, related_name='cholesterol', on_delete=models.CASCADE)
 
 
 class BloodPressure(models.Model):
-    systolic = models.FloatField()
-    diastolic = models.FloatField()
-    date = models.DateField(auto_now_add=False)
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    id = models.AutoField(primary_key=True)
+    systolic = models.FloatField(null=True)
+    diastolic = models.FloatField(null=True)
+    date = models.DateField(auto_now_add=False, null=True)
+    patient = models.ForeignKey(
+        Patient, related_name='blood_pressure', on_delete=models.CASCADE)
 
 
 class Glocose(models.Model):
-    pre_meal = models.FloatField()
-    post_meal = models.FloatField()
-    date = models.DateField(auto_now_add=False)
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
+    id = models.AutoField(primary_key=True)
+    pre_meal = models.FloatField(null=True)
+    post_meal = models.FloatField(null=True)
+    date = models.DateField(auto_now_add=False, null=True)
+    patient = models.ForeignKey(
+        Patient, related_name='glocose', on_delete=models.CASCADE)
 
 
 class Doctor(Person):
-    speciality = models.CharField(max_length=120)
-    appoinment_duration = models.IntegerField()
-    start_time = models.TimeField(auto_now=False, auto_now_add=False)
-    end_time = models.TimeField(auto_now=False, auto_now_add=False)
-    lunch_start = models.TimeField(auto_now=False, auto_now_add=False)
-    lunch_end = models.TimeField(auto_now=False, auto_now_add=False)
-    break_start = models.TimeField(auto_now=False, auto_now_add=False)
-    break_end = models.TimeField(auto_now=False, auto_now_add=False)
-    charge_per_app = models.FloatField()
+    speciality = models.CharField(max_length=120, null=True)
+    appoinment_duration = models.IntegerField(null=True)
+    practice_started = models.DateField(auto_now_add=False, null=True)
+    start_time = models.TimeField(
+        auto_now=False, auto_now_add=False, null=True)
+    end_time = models.TimeField(auto_now=False, auto_now_add=False, null=True)
+    lunch_start = models.TimeField(
+        auto_now=False, auto_now_add=False, null=True)
+    lunch_end = models.TimeField(auto_now=False, auto_now_add=False, null=True)
+    break_start = models.TimeField(
+        auto_now=False, auto_now_add=False, null=True)
+    break_end = models.TimeField(auto_now=False, auto_now_add=False, null=True)
+    charge_per_app = models.FloatField(null=True)
+
+    def __str__(self):
+        return super().__str__()+' Doctor'
 
 
 class Rating(models.Model):
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    rating = models.IntegerField()
-    review = models.CharField(max_length=1000)
-    date = models.DateTimeField(auto_now_add=True)
+    id = models.AutoField(primary_key=True)
+    patient = models.ForeignKey(
+        Patient, related_name='rating', on_delete=models.CASCADE)
+    doctor = models.ForeignKey(
+        Doctor, related_name='rating', on_delete=models.CASCADE)
+    rating = models.IntegerField(null=True)
+    review = models.CharField(max_length=1000, null=True)
+    date = models.DateTimeField(auto_now_add=True, null=True)
+
     class Meta:
         unique_together = [['doctor', 'patient']]
 
 
 class Busy(models.Model):
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    time_start = models.DateTimeField(auto_now=False, auto_now_add=False)
-    time_end = models.DateTimeField(auto_now=False, auto_now_add=False)
-    reason = models.CharField(max_length=1000)
+    id = models.AutoField(primary_key=True)
+    doctor = models.ForeignKey(
+        Doctor, related_name='busy', on_delete=models.CASCADE)
+    time_start = models.DateTimeField(
+        auto_now=False, auto_now_add=False, null=True)
+    time_end = models.DateTimeField(
+        auto_now=False, auto_now_add=False, null=True)
+    reason = models.CharField(max_length=1000, null=True)
+
 
 class Slot(models.Model):
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    time_start = models.DateTimeField(auto_now=False, auto_now_add=False)
+    id = models.AutoField(primary_key=True)
+    patient = models.ForeignKey(
+        Patient, related_name='slot', on_delete=models.CASCADE)
+    doctor = models.ForeignKey(
+        Doctor, related_name='slot', on_delete=models.CASCADE, null=True)
+    time_start = models.DateTimeField(
+        auto_now=False, auto_now_add=False, null=True)
+    heading = models.CharField(max_length=50, null=True)
+    reason = models.CharField(max_length=500, null=True)

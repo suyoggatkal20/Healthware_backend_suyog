@@ -16,9 +16,22 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from profiles.views import *
+from calling.views import *
+from rest_framework.routers import DefaultRouter
+from django.urls import include
 
+rating_router = DefaultRouter()
+rating_router.register(r'profile/rating', RateViewSet, basename='rating')
+rating_router.register(r'profile/person', PersonViewSet, basename='person')
+rating_router.register(r'profile/busy', BusyViewSet, basename='person')
+# print(rating_router.urls)
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('patient/<int:pk>/', PatientView.as_view()),
-    path('patient/', PatientView.as_view()),
+    # path('patient/<int:pk>/', PatientView.as_view()),
+    path('call/', call),
+    path('callend/', callend),
+    path('getCallDoctors/', DoctorCallingListView.as_view()),
+    path('createDoctor/', DoctorCreateView.as_view()),
+    path('', include(rating_router.urls))
+    # DoctorListView
 ]
